@@ -78,7 +78,6 @@ func New(ops ...BufferOps) *Buffer {
 	for _, o := range ops {
 		o(out)
 	}
-	out.readerSize = out.capacity
 	out.setupMetaOffsets()
 	out.updateMeta()
 	return out
@@ -241,4 +240,8 @@ func (b *Buffer) updateMeta() {
 	b.writerOffset = binary.LittleEndian.Uint32(b.data[b.writerOffsetStore:])
 	b.readerOffset = binary.LittleEndian.Uint32(b.data[b.readerOffsetStore:])
 	b.readerSize = binary.LittleEndian.Uint32(b.data[b.readerSizeOffsetStore:])
+	if b.readerSize == 0 {
+		b.readerSize = b.capacity
+	}
+	binary.LittleEndian.PutUint32(b.data[b.readerSizeOffsetStore:], b.readerSize)
 }
